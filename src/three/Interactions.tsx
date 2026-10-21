@@ -11,7 +11,7 @@ export function Interactions() {
   const outlines = useIslandOutlines()
 
   useCameraEnterEffects(treeContents.hide, outlines.hideAll)
-  useClickHandler(pointer, treeContents.hide)
+  useClickHandler(pointer, treeContents)
   useHoverEffects(pointer, treeContents, outlines)
 
   return null

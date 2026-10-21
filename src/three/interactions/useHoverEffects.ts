@@ -28,7 +28,7 @@ interface HoverState {
 
 export function useHoverEffects(
   pointer: THREE.Vector2,
-  treeContents: { show: (index: number) => void, hide: () => void },
+  treeContents: { show: (index: number) => void, hide: () => void, pinned: boolean },
   outlines: { show: (island: IslandOutline) => void, hideAll: () => void },
 ) {
   const { gl, camera } = useThree()
@@ -81,9 +81,9 @@ export function useHoverEffects(
     if (mesh.name.startsWith('BlueprintContent')) setHoveredWorkshopContent(null)
     if (isNavName(mesh.name)) outlines.hideAll()
 
-    // Keep the skill panel open while moving from one leaf to another
+    // Keep the skill panel open while moving from one leaf to another, or while it's pinned
     const stillOnLeaf = next !== undefined && LEAF_NAMES.includes(next.name)
-    if (LEAF_NAMES.includes(mesh.name) && !stillOnLeaf) treeContents.hide()
+    if (LEAF_NAMES.includes(mesh.name) && !stillOnLeaf && !treeContents.pinned) treeContents.hide()
 
     hovered.current = null
   }
@@ -97,7 +97,10 @@ export function useHoverEffects(
         applyHoverMaterial(mesh)
         markHovered(mesh)
         const leafIndex = Number(name.replace('leaves', ''))
-        if (currentVisibleTreeContent !== leafIndex) treeContents.show(leafIndex)
+        // A pinned panel stays put until it's closed or another leaf is clicked
+        if (!treeContents.pinned && currentVisibleTreeContent !== leafIndex) {
+          treeContents.show(leafIndex)
+        }
         return
       }
       case CAMERA.WORKSHOP: {

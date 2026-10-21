@@ -15,7 +15,9 @@ export function SceneProvider({ children }: { children: React.ReactNode }) {
   const contactAnimationMeshes = useRef<THREE.Mesh[]>([])
   const [treeContentsVisible, setTreeContentsVisible] = useState(false)
   const [currentVisibleTreeContent, setCurrentVisibleTreeContent] = useState<number | null>(null)
+  const [treeContentPinned, setTreeContentPinned] = useState(false)
   const [hoveredWorkshopContent, setHoveredWorkshopContent] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<string | null>(null)
 
   const greenSceneMeshes = useRef<THREE.Mesh[]>([])
   const treeContentMeshes = useRef<THREE.Mesh[]>([])
@@ -54,8 +56,12 @@ export function SceneProvider({ children }: { children: React.ReactNode }) {
     setTreeContentsVisible,
     currentVisibleTreeContent,
     setCurrentVisibleTreeContent,
+    treeContentPinned,
+    setTreeContentPinned,
     hoveredWorkshopContent,
     setHoveredWorkshopContent,
+    selectedProject,
+    setSelectedProject,
     loadedCameras,
     setLoadedCameras,
     currentCameraIndex,
@@ -69,7 +75,9 @@ export function SceneProvider({ children }: { children: React.ReactNode }) {
     contactAnimationMeshes,
     treeContentsVisible,
     currentVisibleTreeContent,
+    treeContentPinned,
     hoveredWorkshopContent,
+    selectedProject,
     loadedCameras,
     currentCameraIndex,
     isCameraFlying,

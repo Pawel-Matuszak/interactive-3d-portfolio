@@ -2,8 +2,8 @@ import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { useThree } from '@react-three/fiber'
 import { useScene } from '../useScene'
-import { BLUEPRINT_LINKS, CONTACT_LINKS } from '../sceneConfigs'
-import { BLUEPRINT_NAMES, CAMERA, CONTACT_NAMES, TREE_CONTENT_NAMES, getNavTarget } from './constants'
+import { CONTACT_LINKS } from '../sceneConfigs'
+import { BLUEPRINT_NAMES, CAMERA, CONTACT_NAMES, LEAF_NAMES, getNavTarget } from './constants'
 import { updatePointerFromEvent } from './usePointer'
 import { useInteractiveMeshes } from './useInteractiveMeshes'
 
@@ -12,32 +12,60 @@ function openLink(links: Record<string, string>, name: string) {
   if (url) window.open(url, '_blank', 'noopener,noreferrer')
 }
 
-export function useClickHandler(pointer: THREE.Vector2, hideTreeContents: () => void) {
+// The skill panel is HTML that lets clicks through to the canvas, so hit-test its
+// on-screen boxes (text card + skill icons) to tell a click on it from one outside
+function isOnTreePanel(x: number, y: number) {
+  const parts = document.querySelectorAll('[data-tree-panel] > div:first-child, [data-tree-panel] img')
+  return [...parts].some((part) => {
+    const r = part.getBoundingClientRect()
+    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom
+  })
+}
+
+export function useClickHandler(
+  pointer: THREE.Vector2,
+  treeContents: { pin: (index: number) => void, hide: () => void },
+) {
   const { gl, camera } = useThree()
-  const { currentCameraIndex, setCurrentCameraIndex, isCameraFlying, introDone } = useScene()
+  const {
+    currentCameraIndex,
+    setCurrentCameraIndex,
+    isCameraFlying,
+    introDone,
+    setSelectedProject,
+  } = useScene()
   const getMeshes = useInteractiveMeshes()
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
 
   useEffect(() => {
     const element = gl.domElement
 
-    function onClick() {
+    function onClick(event: MouseEvent) {
       if (isCameraFlying || !introDone) return
       raycaster.setFromCamera(pointer, camera)
       const name = raycaster.intersectObjects(getMeshes())[0]?.object.name
 
-      if (name === undefined) {
-        // Clicking empty space closes the open skill panel
-        if (currentCameraIndex === CAMERA.TREE) hideTreeContents()
+      // Clicking anything but a blueprint closes the project card
+      if (currentCameraIndex === CAMERA.WORKSHOP && !BLUEPRINT_NAMES.includes(name ?? '')) {
+        setSelectedProject(null)
+      }
+
+      if (currentCameraIndex === CAMERA.TREE) {
+        // Clicking a leaf pins its skill panel; a click anywhere outside the panel closes it
+        if (name !== undefined && LEAF_NAMES.includes(name)) {
+          treeContents.pin(Number(name.replace('leaves', '')))
+        } else if (!isOnTreePanel(event.clientX, event.clientY)) {
+          treeContents.hide()
+        }
         return
       }
 
-      if (TREE_CONTENT_NAMES.includes(name)) {
-        hideTreeContents()
-      } else if (currentCameraIndex === CAMERA.CONTACT && CONTACT_NAMES.includes(name)) {
+      if (name === undefined) return
+
+      if (currentCameraIndex === CAMERA.CONTACT && CONTACT_NAMES.includes(name)) {
         openLink(CONTACT_LINKS, name)
       } else if (currentCameraIndex === CAMERA.WORKSHOP && BLUEPRINT_NAMES.includes(name)) {
-        openLink(BLUEPRINT_LINKS, name)
+        setSelectedProject(name)
       } else if (currentCameraIndex === CAMERA.MAIN) {
         const target = getNavTarget(name)
         if (target) setCurrentCameraIndex(target.camera)
@@ -47,7 +75,7 @@ export function useClickHandler(pointer: THREE.Vector2, hideTreeContents: () => 
     function onPointerUp(event: PointerEvent) {
       if (event.pointerType === 'touch') {
         updatePointerFromEvent(pointer, element, event)
-        onClick()
+        onClick(event)
       }
     }
 
@@ -67,6 +95,7 @@ export function useClickHandler(pointer: THREE.Vector2, hideTreeContents: () => 
     setCurrentCameraIndex,
     isCameraFlying,
     introDone,
-    hideTreeContents,
+    treeContents,
+    setSelectedProject,
   ])
 }

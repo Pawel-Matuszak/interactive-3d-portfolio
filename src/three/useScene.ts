@@ -28,8 +28,12 @@ export interface SceneContextValue {
   setTreeContentsVisible: (v: boolean) => void
   currentVisibleTreeContent: number | null
   setCurrentVisibleTreeContent: (v: number | null) => void
+  treeContentPinned: boolean
+  setTreeContentPinned: (v: boolean) => void
   hoveredWorkshopContent: string | null
   setHoveredWorkshopContent: (v: string | null) => void
+  selectedProject: string | null
+  setSelectedProject: (v: string | null) => void
   loadedCameras: THREE.PerspectiveCamera[]
   setLoadedCameras: React.Dispatch<React.SetStateAction<THREE.PerspectiveCamera[]>>
   currentCameraIndex: number

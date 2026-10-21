@@ -15,6 +15,7 @@ import { TreeContentOverlays } from '../components/TreeContentOverlays'
 import { WorkshopTooltip } from '../components/WorkshopTooltip'
 import { LoadingScreen } from '../components/LoadingScreen'
 import { IntroHint } from '../components/IntroHint'
+import { ProjectCard } from '../components/ProjectCard'
 // import { CvButton } from '../components/CvButton'
 
 const MOBILE_BREAKPOINT = 900
@@ -76,6 +77,7 @@ export function CanvasScene() {
         </Canvas>
         <LoadingScreen />
         <CameraSwitcher />
+        <ProjectCard />
         <IntroHint />
         {/* <CvButton /> */}
       </SceneProvider>

@@ -3,24 +3,7 @@ import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useScene } from '../three/useScene'
-
-interface TreeOverlayContent {
-  title: string
-  description: string
-  imageUrl?: string
-  skills: string[]
-}
-const BASE_URL = import.meta.env.BASE_URL
-const SKILLS_LIST = new Map<string, string>(
-  [
-    ['Python', `${BASE_URL}static/icons/python.png`],
-    ['TypeScript', `${BASE_URL}static/icons/typescript.png`],
-    ['React', `${BASE_URL}static/icons/react.png`],
-    ['AI', `${BASE_URL}static/icons/science.png`],
-    ['REST API', `${BASE_URL}static/icons/api.png`],
-    ['Next.js', `${BASE_URL}static/icons/nextjs.png`],
-  ]
-)
+import { EXPERIENCE, SKILL_ICONS, type ExperienceEntry } from '../content/experience'
 
 const SKILL_POSITIONS: Record<number, { x: number; y: number }[]> = {
   4: [
@@ -81,49 +64,10 @@ function clampToViewport(el: HTMLElement) {
   if (dx || dy) el.style.transform = `translate(${dx}px, ${dy}px)`
 }
 
-const DEFAULT_CONTENT: Record<number, TreeOverlayContent> = {
-  4: {
-    title: 'RTB House – TypeScript Developer',
-    description: 'Developed an internal AI chat assistant to support daily tasks. Built tracking scripts, crawlers, and reporting scripts.',
-    skills: [
-      SKILLS_LIST.get('Python') ?? '',
-      SKILLS_LIST.get('TypeScript') ?? '',
-      SKILLS_LIST.get('AI') ?? '',
-    ]
-  },
-  3: {
-    title: 'Anfata Games – Full Stack Developer',
-    description: 'Enhanced application performance and fixed critical bugs improving overall code stability. Integrated dynamic user content from a headless CMS.',
-    skills: [
-      SKILLS_LIST.get('Next.js') ?? '',
-      SKILLS_LIST.get('TypeScript') ?? '',
-      SKILLS_LIST.get('React') ?? '',
-    ]
-  },
-  2: {
-    title: 'CeboTech – Python Developer',
-    description: 'Contributed to AI-driven applications. REST API design. Domain-driven architecture. Developed app features to improve small business finance management.',
-    skills: [
-      SKILLS_LIST.get('Python') ?? '',
-      SKILLS_LIST.get('AI') ?? '',
-      SKILLS_LIST.get('REST API') ?? '',
-      SKILLS_LIST.get('React') ?? '',
-    ]
-  },
-  1: {
-    title: 'Storm Gray Unit – Junior Frontend Developer',
-    description: 'Developed React-based admin dashboards for IoT management. Collaborated on REST API design to ensure seamless data flow.',
-    skills: [
-      SKILLS_LIST.get('React') ?? '',
-      SKILLS_LIST.get('REST API') ?? '',
-    ]
-  }
-}
-
 export function TreeContentOverlays({
-  contents = DEFAULT_CONTENT,
+  contents = EXPERIENCE,
 }: {
-  contents?: Record<number, TreeOverlayContent>
+  contents?: Record<number, ExperienceEntry>
 }) {
   const { loadedScenes, treeContentsVisible, currentVisibleTreeContent } = useScene()
 
@@ -152,7 +96,8 @@ export function TreeContentOverlays({
   useEffect(() => {
     const urls = new Set<string>()
     Object.values(contents).forEach((c) => {
-      c.skills.forEach((u) => {
+      c.skills.forEach((skill) => {
+        const u = SKILL_ICONS[skill]
         if (u && !urls.has(u)) {
           urls.add(u)
           const img = new Image()
@@ -231,7 +176,7 @@ export function TreeContentOverlays({
                 }
               }
             `}</style>
-            <div ref={clampRef}>
+            <div ref={clampRef} data-tree-panel>
               <div
                 style={{
                   display: 'flex',
@@ -316,13 +261,13 @@ export function TreeContentOverlays({
                 </svg>
 
                 {/* Skills positioned randomly */}
-                {content.skills.map((skillUrl, skillIndex) => {
+                {content.skills.map((skill, skillIndex) => {
                   if (skillPositions.length <= skillIndex) return null
                   const skillPos = skillPositions[skillIndex]
 
                   return (
                     <div
-                      key={`skill-${skillIndex}-${skillUrl}`}
+                      key={`skill-${skillIndex}-${skill}`}
                       style={{
                         position: 'absolute',
                         left: `${skillPos.x + 160 - 41}px`, // Center the image
@@ -332,8 +277,8 @@ export function TreeContentOverlays({
                       }}
                     >
                       <img
-                        src={skillUrl}
-                        alt={`Skill ${skillIndex + 1}`}
+                        src={SKILL_ICONS[skill]}
+                        alt={skill}
                         style={{
                           width: 82,
                           height: 82,

@@ -3,43 +3,15 @@ import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useScene } from '../three/useScene'
-
-interface WorkshopContent {
-    title: string
-    description: string
-    link?: string
-    technologies: string[]
-}
-
-const WORKSHOP_CONTENT: Record<string, WorkshopContent> = {
-    BlueprintContent1: {
-        title: 'Project 1',
-        description: 'Coming soon - exciting project in development',
-        technologies: []
-    },
-    BlueprintContent2: {
-        title: 'Pixel Art Editor',
-        description: 'A web-based pixel art creation tool with many available tools',
-        technologies: ['TypeScript', 'React', 'Canvas API']
-    },
-    BlueprintContent3: {
-        title: 'Telecom Website',
-        description: 'Website for telecommunications company with modern design and responsive layout',
-        technologies: ['Next.js', 'Tailwind CSS', 'TypeScript']
-    },
-    BlueprintContent4: {
-        title: 'Chess Game',
-        description: 'Interactive chess game built with vanilla JavaScript',
-        technologies: ['JavaScript', 'HTML', 'CSS']
-    }
-}
+import { PROJECTS } from '../content/projects'
 
 export function WorkshopTooltip() {
     const {
         // workshopContentMeshes, // unused
         loadedScenes,
         currentCameraIndex,
-        hoveredWorkshopContent
+        hoveredWorkshopContent,
+        selectedProject
     } = useScene()
 
     const workshopScene = useMemo(() =>
@@ -90,11 +62,11 @@ export function WorkshopTooltip() {
         }
     }, [hoveredWorkshopContent])
 
-    // Only show tooltip when in workshop camera (index 0) and hovering over content
-    if (currentCameraIndex !== 0 || !hoveredWorkshopContent || !workshopScene ||
+    // Only show tooltip when in workshop camera (index 0), hovering over content and no card is open
+    if (currentCameraIndex !== 0 || !hoveredWorkshopContent || selectedProject || !workshopScene ||
         !currentPos || !currentQuat || displayedContentKey !== hoveredWorkshopContent) return null
 
-    const content = WORKSHOP_CONTENT[hoveredWorkshopContent]
+    const content = PROJECTS[hoveredWorkshopContent]
     if (!content) return null
 
     // Offset slightly above the object
