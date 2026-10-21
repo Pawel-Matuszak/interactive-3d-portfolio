@@ -115,7 +115,7 @@ export function ModelLoader() {
                 }
               }
               if (config.sceneUrl.endsWith('contactContents.glb')) {
-                if (['ContactContent1', 'ContactContent2', 'ContactContent3', 'ContactContent4'].includes(mesh.name)) {
+                if (['ContactContent1', 'ContactContent2', 'ContactContent4'].includes(mesh.name)) {
                   contactContentMeshes.current.push(mesh);
                   const tex = textureLoader.load(`${BASE_URL}static/${mesh.name}.png`)
                   Object.assign(tex, config.textureSettings)

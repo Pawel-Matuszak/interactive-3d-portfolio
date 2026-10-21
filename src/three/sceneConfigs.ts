@@ -195,7 +195,6 @@ export const DRACO_DECODER_PATH = `${BASE_URL}static/draco/`
 export const CONTACT_LINKS = {
   ContactContent1: 'https://github.com/Pawel-Matuszak',
   ContactContent2: 'https://www.linkedin.com/in/pawe%C5%82-matuszak-404a5523b/',
-  ContactContent3: 'https://x.com/',
   ContactContent4: 'mailto:pawel.matuszak2@icloud.com',
 }
 export const BLUEPRINT_LINKS = {

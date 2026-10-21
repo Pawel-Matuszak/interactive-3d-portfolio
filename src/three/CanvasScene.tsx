@@ -13,6 +13,7 @@ import { GradientSky } from './GradientSky'
 import { TreeContentOverlays } from '../components/TreeContentOverlays'
 import { WorkshopTooltip } from '../components/WorkshopTooltip'
 import { LoadingScreen } from '../components/LoadingScreen'
+// import { CvButton } from '../components/CvButton'
 
 const MOBILE_BREAKPOINT = 900
 
@@ -72,6 +73,7 @@ export function CanvasScene() {
         </Canvas>
         <LoadingScreen />
         <CameraSwitcher />
+        {/* <CvButton /> */}
       </SceneProvider>
       {mobileBlocked && !dismissed && (
         <div className="mobile-blocker">

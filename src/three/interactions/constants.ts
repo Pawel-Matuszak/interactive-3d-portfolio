@@ -17,7 +17,7 @@ export const BLUEPRINT_NAMES = [
 ]
 export const BLUEPRINT_HOVER_NAMES = [...BLUEPRINT_NAMES, 'BlueprintHoverContent']
 
-export const CONTACT_NAMES = ['ContactContent1', 'ContactContent2', 'ContactContent3', 'ContactContent4']
+export const CONTACT_NAMES = ['ContactContent1', 'ContactContent2', 'ContactContent4']
 
 export const POST_SIGN_NAMES = ['PostSign1', 'PostSign2', 'PostSign3']
 export const BANNER_NAMES = ['IslandBanner1', 'IslandBanner2', 'IslandBanner3']
