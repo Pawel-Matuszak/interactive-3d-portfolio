@@ -16,7 +16,6 @@ import { WorkshopTooltip } from '../components/WorkshopTooltip'
 import { LoadingScreen } from '../components/LoadingScreen'
 import { IntroHint } from '../components/IntroHint'
 import { ProjectCard } from '../components/ProjectCard'
-// import { CvButton } from '../components/CvButton'
 
 const MOBILE_BREAKPOINT = 900
 
@@ -79,7 +78,6 @@ export function CanvasScene() {
         <CameraSwitcher />
         <ProjectCard />
         <IntroHint />
-        {/* <CvButton /> */}
       </SceneProvider>
       {mobileBlocked && !dismissed && (
         <div className="mobile-blocker">

@@ -1,45 +1,30 @@
-import { useScene } from '../three/useScene'
+// Google Docs PDF export, served as an attachment so it downloads
+const CV_URL = 'https://docs.google.com/document/d/13BYVxxXqn8vqU8tCViN_PKiFDPH8JFJGAenxA2dncUI/export?format=pdf'
 
-const CV_URL = `${import.meta.env.BASE_URL}static/Pawel_Matuszak_CV.pdf`
+function DownloadIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 4v11" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 20h14" />
+    </svg>
+  )
+}
 
+// CV download, kept apart from the island navigation in the site header
 export function CvButton() {
-  const { loadedCameras } = useScene()
-
-  // Wait for the scene so the button doesn't sit on top of the loading screen
-  if (loadedCameras.length === 0) return null
-
   return (
     <a
+      className="site-nav__cv"
       href={CV_URL}
-      download
-      style={{
-        position: 'fixed',
-        top: '24px',
-        right: '24px',
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '12px 20px',
-        background: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderRadius: '12px',
-        color: '#fff',
-        fontSize: '18px',
-        fontWeight: 500,
-        textDecoration: 'none',
-        transition: 'background 0.15s ease',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(0, 0, 0, 0.65)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(0, 0, 0, 0.5)'
-      }}
+      rel="noopener noreferrer"
+      aria-label="Download CV"
     >
-      <span style={{ fontSize: '20px', lineHeight: 1 }}>↓</span>
-      Download CV
+      <span className="site-nav__label">
+        <DownloadIcon />
+        CV
+      </span>
     </a>
   )
 }

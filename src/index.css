@@ -75,7 +75,7 @@ button:focus-visible {
 
 /* Site header. The bar itself lets clicks through to the scene, only its pills catch them */
 .site-nav { position: fixed; top: 20px; left: 24px; right: 24px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
-.site-nav__brand, .site-nav__items { pointer-events: auto; border-radius: 10px; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.site-nav__brand, .site-nav__items, .site-nav__cv { pointer-events: auto; border-radius: 10px; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .site-nav__items { display: flex; gap: 2px; padding: 4px; }
 .site-nav button { border: none; background: transparent; color: rgba(255, 255, 255, 0.75); font-size: 16px; font-weight: 500; line-height: 1.2; white-space: nowrap; transition: color 0.15s ease, background 0.15s ease; }
 .site-nav button:hover:not(:disabled), .site-nav button[aria-current='page'] { color: #fff; }
@@ -87,16 +87,32 @@ button:focus-visible {
 .site-nav__item:hover:not(:disabled):not(.is-active) { background: rgba(255, 255, 255, 0.08); }
 .site-nav__pill { position: absolute; inset: 0; border-radius: 7px; background: rgba(255, 255, 255, 0.16); }
 .site-nav__label { position: relative; display: flex; align-items: center; gap: 6px; }
+/* Islands and the CV sit side by side as separate pills */
+.site-nav__actions { display: flex; gap: 8px; align-items: center; }
+.site-nav__cv { display: flex; padding: 12px 16px; color: rgba(255, 255, 255, 0.75); font-size: 16px; font-weight: 500; line-height: 1.2; white-space: nowrap; text-decoration: none; transition: color 0.15s ease, background 0.15s ease; }
+.site-nav__cv:hover { color: #fff; background: rgba(40, 40, 40, 0.55); }
+.site-nav__cv:focus { outline: none; }
+.site-nav__cv:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.8); outline-offset: 2px; }
 /* Not enough room for the name next to the islands: drop it and center the islands */
 @media (max-width: 720px) {
   .site-nav { left: 16px; right: 16px; justify-content: center; }
   .site-nav__brand { display: none; }
 }
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .site-nav { top: 16px; }
   .site-nav__items { max-width: 100%; }
-  .site-nav button { font-size: 14px; }
+  .site-nav button, .site-nav__cv { font-size: 14px; }
   .site-nav__item { padding: 8px 10px; }
+  .site-nav__cv { padding: 12px; }
+}
+/* Phones: Home keeps only its icon */
+@media (max-width: 420px) {
+  .site-nav button, .site-nav__cv { font-size: 13px; }
+  .site-nav { left: 8px; right: 8px; }
+  .site-nav__item { padding: 8px 6px; }
+  .site-nav__actions { gap: 6px; }
+  .site-nav__cv { padding: 12px 10px; }
+  .site-nav__home-text { display: none; }
 }
 
 /* Workshop project details card */
