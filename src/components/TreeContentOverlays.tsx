@@ -2,25 +2,8 @@ import { Fragment, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useScene } from '../three/SceneContext'
-
-interface TreeOverlayContent {
-  title: string
-  description: string
-  imageUrl?: string
-  skills: string[]
-}
-const BASE_URL = import.meta.env.BASE_URL
-const SKILLS_LIST = new Map<string, string>(
-  [
-    ['Python', `${BASE_URL}static/icons/python.png`],
-    ['TypeScript', `${BASE_URL}static/icons/typescript.png`],
-    ['React', `${BASE_URL}static/icons/react.png`],
-    ['AI', `${BASE_URL}static/icons/science.png`],
-    ['REST API', `${BASE_URL}static/icons/api.png`],
-    ['Next.js', `${BASE_URL}static/icons/nextjs.png`],
-  ]
-)
+import { useScene } from '../three/useScene'
+import { EXPERIENCE, SKILL_ICONS, type ExperienceEntry } from '../content/experience'
 
 const SKILL_POSITIONS: Record<number, { x: number; y: number }[]> = {
   4: [
@@ -49,49 +32,42 @@ const SKILL_POSITIONS: Record<number, { x: number; y: number }[]> = {
   ]
 }
 
-const DEFAULT_CONTENT: Record<number, TreeOverlayContent> = {
-  4: {
-    title: 'RTB House – TypeScript Developer',
-    description: 'Developed an internal AI chat assistant to support daily tasks. Built tracking scripts, crawlers, and reporting scripts.',
-    skills: [
-      SKILLS_LIST.get('Python') ?? '',
-      SKILLS_LIST.get('TypeScript') ?? '',
-      SKILLS_LIST.get('AI') ?? '',
-    ]
-  },
-  3: {
-    title: 'Anfata Games – Full Stack Developer',
-    description: 'Enhanced application performance and fixed critical bugs improving overall code stability. Integrated dynamic user content from a headless CMS.',
-    skills: [
-      SKILLS_LIST.get('Next.js') ?? '',
-      SKILLS_LIST.get('TypeScript') ?? '',
-      SKILLS_LIST.get('React') ?? '',
-    ]
-  },
-  2: {
-    title: 'CeboTech – Python Developer',
-    description: 'Contributed to AI-driven applications. REST API design. Domain-driven architecture. Developed app features to improve small business finance management.',
-    skills: [
-      SKILLS_LIST.get('Python') ?? '',
-      SKILLS_LIST.get('AI') ?? '',
-      SKILLS_LIST.get('REST API') ?? '',
-      SKILLS_LIST.get('React') ?? '',
-    ]
-  },
-  1: {
-    title: 'Storm Gray Unit – Junior Frontend Developer',
-    description: 'Developed React-based admin dashboards for IoT management. Collaborated on REST API design to ensure seamless data flow.',
-    skills: [
-      SKILLS_LIST.get('React') ?? '',
-      SKILLS_LIST.get('REST API') ?? '',
-    ]
+const VIEWPORT_MARGIN = 16
+// Re-check after the panel has been positioned and after its appear animation finishes
+const CLAMP_DELAYS_MS = [50, 450]
+
+// Shift the panel (and its skill icons) so nothing sticks out of the window
+function clampToViewport(el: HTMLElement) {
+  el.style.transform = ''
+  const scale = el.getBoundingClientRect().width / el.offsetWidth
+  if (!scale) return
+
+  let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity
+  for (const child of el.querySelectorAll('*')) {
+    const rect = child.getBoundingClientRect()
+    if (!rect.width) continue
+    left = Math.min(left, rect.left)
+    right = Math.max(right, rect.right)
+    top = Math.min(top, rect.top)
+    bottom = Math.max(bottom, rect.bottom)
   }
+
+  const shift = (min: number, max: number, size: number) => {
+    if (min < VIEWPORT_MARGIN) return VIEWPORT_MARGIN - min
+    // Prefer keeping the start edge visible when the panel is wider than the window
+    const overflow = size - VIEWPORT_MARGIN - max
+    if (overflow < 0) return Math.max(overflow, VIEWPORT_MARGIN - min)
+    return 0
+  }
+  const dx = shift(left, right, window.innerWidth) / scale
+  const dy = shift(top, bottom, window.innerHeight) / scale
+  if (dx || dy) el.style.transform = `translate(${dx}px, ${dy}px)`
 }
 
 export function TreeContentOverlays({
-  contents = DEFAULT_CONTENT,
+  contents = EXPERIENCE,
 }: {
-  contents?: Record<number, TreeOverlayContent>
+  contents?: Record<number, ExperienceEntry>
 }) {
   const { loadedScenes, treeContentsVisible, currentVisibleTreeContent } = useScene()
 
@@ -105,6 +81,7 @@ export function TreeContentOverlays({
 
   // Performance optimization - throttle position updates
   const positionUpdateThrottle = useRef(0)
+  const clampRef = useRef<HTMLDivElement>(null)
   const POSITION_UPDATE_MS = 33 // ~30fps
 
   // Get fixed positions for skills
@@ -119,7 +96,8 @@ export function TreeContentOverlays({
   useEffect(() => {
     const urls = new Set<string>()
     Object.values(contents).forEach((c) => {
-      c.skills.forEach((u) => {
+      c.skills.forEach((skill) => {
+        const u = SKILL_ICONS[skill]
         if (u && !urls.has(u)) {
           urls.add(u)
           const img = new Image()
@@ -128,6 +106,19 @@ export function TreeContentOverlays({
       })
     })
   }, [contents])
+
+  useEffect(() => {
+    if (!treeContentsVisible || !currentVisibleTreeContent) return
+    const clamp = () => {
+      if (clampRef.current) clampToViewport(clampRef.current)
+    }
+    const timeouts = CLAMP_DELAYS_MS.map((ms) => setTimeout(clamp, ms))
+    window.addEventListener('resize', clamp)
+    return () => {
+      timeouts.forEach(clearTimeout)
+      window.removeEventListener('resize', clamp)
+    }
+  }, [treeContentsVisible, currentVisibleTreeContent])
 
   useFrame(() => {
     if (!treeScene) return
@@ -185,119 +176,124 @@ export function TreeContentOverlays({
                 }
               }
             `}</style>
-            <div
-              style={{
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-                background: 'rgba(0, 0, 0, 0.1)',
-                color: 'white',
-                border: '1px solid rgba(255,255,255,0.7)',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                backdropFilter: 'blur(6px)',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
-                maxWidth: '320px',
-                animation: 'treeContentAppear 0.25s ease-out forwards',
-                animationDelay: '50ms',
-                opacity: 0
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.2 }}>
-                  {content.title}
-                </div>
-                <ul style={{ textAlign: 'left', marginBottom: 0 }}>
-                  {content.description.split('. ').map(item => {
-                    return (
-                      <li style={{ fontSize: 18, opacity: 0.9, listStyleType: 'disc', marginBottom: 4 }} >{item}</li>
-                    )
-                  })}
-                </ul>
-              </div>
-            </div>
-            {/* Skills with fixed positioning and curved lines */}
-            <div style={{
-              position: 'relative',
-              width: '100%',
-              height: '160px',
-              marginTop: '10px',
-              animation: 'treeContentAppear 0.25s ease-out forwards',
-              animationDelay: '150ms',
-              opacity: 0
-            }}>
-              {/* SVG for curved lines */}
-              <svg
+            <div ref={clampRef} data-tree-panel>
+              <div
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  pointerEvents: 'none',
-                  zIndex: 1
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'center',
+                  background: 'rgba(0, 0, 0, 0.1)',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.7)',
+                  borderRadius: '12px',
+                  padding: '12px 14px',
+                  backdropFilter: 'blur(6px)',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+                  maxWidth: '320px',
+                  animation: 'treeContentAppear 0.25s ease-out forwards',
+                  animationDelay: '50ms',
+                  opacity: 0
                 }}
               >
-                {content.skills.map((_, skillIndex) => {
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.2 }}>
+                    {content.title}
+                  </div>
+                  <ul style={{ textAlign: 'left', marginBottom: 0 }}>
+                    {content.description.split('. ').map(item => (
+                      <li
+                        key={item}
+                        style={{ fontSize: 18, opacity: 0.9, listStyleType: 'disc', marginBottom: 4 }}
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              {/* Skills with fixed positioning and curved lines */}
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                height: '160px',
+                marginTop: '10px',
+                animation: 'treeContentAppear 0.25s ease-out forwards',
+                animationDelay: '150ms',
+                opacity: 0
+              }}>
+                {/* SVG for curved lines */}
+                <svg
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none',
+                    zIndex: 1
+                  }}
+                >
+                  {content.skills.map((_, skillIndex) => {
+                    if (skillPositions.length <= skillIndex) return null
+                    const skillPos = skillPositions[skillIndex]
+                    const startX = 160 // Center of the main content
+                    const startY = 0
+                    const endX = skillPos.x + 160
+                    const endY = skillPos.y + 41 // Half of skill image height
+
+                    // Create a curved path
+                    const controlX = (startX + endX) / 2
+                    const controlY = Math.min(startY, endY) - 30 // Curve upward
+
+                    const pathData = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`
+
+                    return (
+                      <path
+                        key={`line-${skillIndex}`}
+                        d={pathData}
+                        stroke="rgba(255, 255, 255, 0.6)"
+                        strokeWidth="2"
+                        fill="none"
+                        strokeDasharray="5,5"
+                      />
+                    )
+                  })}
+                </svg>
+
+                {/* Skills positioned randomly */}
+                {content.skills.map((skill, skillIndex) => {
                   if (skillPositions.length <= skillIndex) return null
                   const skillPos = skillPositions[skillIndex]
-                  const startX = 160 // Center of the main content
-                  const startY = 0
-                  const endX = skillPos.x + 160
-                  const endY = skillPos.y + 41 // Half of skill image height
-
-                  // Create a curved path
-                  const controlX = (startX + endX) / 2
-                  const controlY = Math.min(startY, endY) - 30 // Curve upward
-
-                  const pathData = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`
 
                   return (
-                    <path
-                      key={`line-${skillIndex}`}
-                      d={pathData}
-                      stroke="rgba(255, 255, 255, 0.6)"
-                      strokeWidth="2"
-                      fill="none"
-                      strokeDasharray="5,5"
-                    />
+                    <div
+                      key={`skill-${skillIndex}-${skill}`}
+                      style={{
+                        position: 'absolute',
+                        left: `${skillPos.x + 160 - 41}px`, // Center the image
+                        top: `${skillPos.y}px`,
+                        zIndex: 2,
+                        background: 'rgba(0, 0, 0, 0.05)',
+                      }}
+                    >
+                      <img
+                        src={SKILL_ICONS[skill]}
+                        alt={skill}
+                        style={{
+                          width: 82,
+                          height: 82,
+                          borderRadius: 8,
+                          border: '2px solid rgba(255, 255, 255, 0.8)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          backdropFilter: 'blur(4px)',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </div>
                   )
                 })}
-              </svg>
-
-              {/* Skills positioned randomly */}
-              {content.skills.map((skillUrl, skillIndex) => {
-                if (skillPositions.length <= skillIndex) return null
-                const skillPos = skillPositions[skillIndex]
-
-                return (
-                  <div
-                    key={`skill-${skillIndex}-${skillUrl}`}
-                    style={{
-                      position: 'absolute',
-                      left: `${skillPos.x + 160 - 41}px`, // Center the image
-                      top: `${skillPos.y}px`,
-                      zIndex: 2,
-                      background: 'rgba(0, 0, 0, 0.05)',
-                    }}
-                  >
-                    <img
-                      src={skillUrl}
-                      alt={`Skill ${skillIndex + 1}`}
-                      style={{
-                        width: 82,
-                        height: 82,
-                        borderRadius: 8,
-                        border: '2px solid rgba(255, 255, 255, 0.8)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(4px)',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  </div>
-                )
-              })}
+              </div>
             </div>
           </Html>
         </group>

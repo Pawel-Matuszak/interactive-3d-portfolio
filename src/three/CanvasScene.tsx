@@ -10,9 +10,12 @@ import { CameraSwitcher } from './CameraSwitcher'
 import { WaterAnimation } from './WaterAnimation'
 import { WindAnimation } from './WindAnimation'
 import { GradientSky } from './GradientSky'
+import { Ocean } from './Ocean'
 import { TreeContentOverlays } from '../components/TreeContentOverlays'
 import { WorkshopTooltip } from '../components/WorkshopTooltip'
 import { LoadingScreen } from '../components/LoadingScreen'
+import { IntroHint } from '../components/IntroHint'
+import { ProjectCard } from '../components/ProjectCard'
 
 const MOBILE_BREAKPOINT = 900
 
@@ -58,7 +61,7 @@ export function CanvasScene() {
           {import.meta.env.DEV && (
             <>
               <Perf
-                position="top-left"
+                position="bottom-right"
                 minimal={false}
                 showGraph={true}
                 logsPerSecond={2}
@@ -69,16 +72,20 @@ export function CanvasScene() {
           {/* <OrbitControls enableDamping makeDefault /> */}
           {/* <Environment preset="park" background /> */}
           <GradientSky />
+          <Ocean />
         </Canvas>
         <LoadingScreen />
         <CameraSwitcher />
+        <ProjectCard />
+        <IntroHint />
       </SceneProvider>
       {mobileBlocked && !dismissed && (
         <div className="mobile-blocker">
           <div className="mobile-blocker__card">
             <div className="mobile-blocker__title">Best experienced on desktop</div>
             <div className="mobile-blocker__body">
-              This interactive 3D portfolio needs a keyboard, mouse, and a larger screen to run smoothly.
+              This interactive 3D portfolio needs a keyboard, mouse, and a larger screen
+              to run smoothly.
               Please visit again on a laptop or desktop for the full experience.
             </div>
             <button

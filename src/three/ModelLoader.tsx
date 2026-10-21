@@ -3,7 +3,9 @@ import * as THREE from 'three'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { sceneConfigs, DRACO_DECODER_PATH } from './sceneConfigs'
-import { useScene } from './SceneContext'
+import { useScene, type LoadedScene } from './useScene'
+
+const BASE_URL = import.meta.env.BASE_URL
 
 function createMaterialFromTexture(texture?: THREE.Texture) {
   return new THREE.MeshBasicMaterial(texture ? { map: texture } : {})
@@ -28,9 +30,6 @@ export function ModelLoader() {
     waterMeshes,
     boatMesh,
   } = useScene()
-
-  // GLTFs are loaded per-scene below with DRACO configured on each loader instance
-  const BASE_URL = import.meta.env.BASE_URL
 
   // Texture loader is synchronous in R3F via THREE.TextureLoader
   useEffect(() => {
@@ -77,13 +76,13 @@ export function ModelLoader() {
                   mesh.name.startsWith('Bush') ||
                   mesh.name === 'Tree004') {
                   greenSceneMeshes.current.push(mesh)
-                    ; (mesh.userData as Record<string, unknown>).originalMaterial = (material).clone()
-                    // Store original rotation for wind animation
-                    ; (mesh.userData as Record<string, unknown>).originalRotation = mesh.rotation.clone()
+                  mesh.userData.originalMaterial = material.clone()
+                  // Store original rotation for wind animation
+                  mesh.userData.originalRotation = mesh.rotation.clone()
                 }
                 if (['Post', 'PostSign1', 'PostSign2', 'PostSign3'].includes(mesh.name)) {
                   navContentMeshes.current.push(mesh)
-                    ; (mesh.userData as Record<string, unknown>).originalMaterial = (material).clone()
+                  mesh.userData.originalMaterial = material.clone()
                 }
               }
               if (config.sceneUrl.endsWith('islandNavigation.glb')) {
@@ -94,11 +93,13 @@ export function ModelLoader() {
               if (config.sceneUrl.endsWith('treeContents.glb')) {
                 if (['TreeContent1', 'TreeContent2', 'TreeContent3', 'TreeContent4', 'TreeHoverContent'].includes(mesh.name)) {
                   treeContentMeshes.current.push(mesh)
-                    ; (mesh.userData as Record<string, unknown>).originalMaterial = (material).clone()
+                  mesh.userData.originalMaterial = material.clone()
                   // Make plane invisible but raycastable so we can anchor HTML without seeing the square
-                  const invisible = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
-                    ; (invisible as unknown as { depthWrite: boolean }).depthWrite = false
-                  mesh.material = invisible
+                  mesh.material = new THREE.MeshBasicMaterial({
+                    transparent: true,
+                    opacity: 0,
+                    depthWrite: false,
+                  })
                 }
               }
               if (config.sceneUrl.endsWith('blueprintContents.glb')) {
@@ -109,19 +110,19 @@ export function ModelLoader() {
                   mesh.material = new THREE.MeshBasicMaterial({ map: tex });
                   if (mesh.material?.clone) {
                     const cloned = mesh.material.clone()
-                      ; (mesh.userData as Record<string, unknown>).originalMaterial = cloned
+                    mesh.userData.originalMaterial = cloned
                   }
                 }
               }
               if (config.sceneUrl.endsWith('contactContents.glb')) {
-                if (['ContactContent1', 'ContactContent2', 'ContactContent3', 'ContactContent4'].includes(mesh.name)) {
+                if (['ContactContent1', 'ContactContent2', 'ContactContent4'].includes(mesh.name)) {
                   contactContentMeshes.current.push(mesh);
                   const tex = textureLoader.load(`${BASE_URL}static/${mesh.name}.png`)
                   Object.assign(tex, config.textureSettings)
                   mesh.material = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
                   if (mesh.material?.clone) {
                     const cloned = mesh.material.clone()
-                      ; (mesh.userData as Record<string, unknown>).originalMaterial = cloned
+                    mesh.userData.originalMaterial = cloned
                   }
                 }
               }
@@ -129,7 +130,7 @@ export function ModelLoader() {
                 buildingsMeshes.current.push(mesh);
                 if (mesh.material?.clone) {
                   const cloned = mesh.material.clone()
-                    ; (mesh.userData as Record<string, unknown>).originalMaterial = cloned
+                  mesh.userData.originalMaterial = cloned
                 }
               }
               if (config.sceneUrl.endsWith('water.glb')) {
@@ -161,19 +162,19 @@ export function ModelLoader() {
                 }
                 // Store original vertex positions for wave animation
                 const geometry = mesh.geometry
-                if (geometry && geometry.attributes.position) {
+                if (geometry?.attributes.position) {
                   const positions = geometry.attributes.position.array as Float32Array
                   const originalPositions = new Float32Array(positions)
-                    ; (mesh.userData as Record<string, unknown>).originalPositions = originalPositions
+                  mesh.userData.originalPositions = originalPositions
                 }
               }
 
               // Find boat mesh
               if (mesh.name.toLowerCase().includes('boat')) {
                 boatMesh.current = mesh
-                  // Store original rotation for animation
-                  ; (mesh.userData as Record<string, unknown>).originalRotation = mesh.rotation.clone()
-                  ; (mesh.userData as Record<string, unknown>).originalPosition = mesh.position.clone()
+                // Store original rotation for animation
+                mesh.userData.originalRotation = mesh.rotation.clone()
+                mesh.userData.originalPosition = mesh.position.clone()
               }
 
               //Group island meshes
@@ -248,7 +249,7 @@ export function ModelLoader() {
       })
 
       const resultsRaw = await Promise.all(promises)
-      const results = resultsRaw.filter((r): r is { name: string; scene: THREE.Group } => r !== null)
+      const results = resultsRaw.filter((r): r is LoadedScene => r !== null)
 
       // After all scenes loaded, create scaled outline meshes for island groups
       try {

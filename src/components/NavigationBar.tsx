@@ -1,103 +1,87 @@
-import React from 'react'
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
+import { CAMERA } from '../three/interactions/constants'
+import { CvButton } from './CvButton'
 
 interface NavigationBarProps {
-  onBackClick: () => void
-  onCameraClick: (index: number) => void
-  cameras: { name: string; index: number }[]
+  visible: boolean
+  disabled: boolean
+  items: { name: string; index: number }[]
   currentCameraIndex: number
-  style?: React.CSSProperties
-  className?: string
+  onNavigate: (index: number) => void
 }
 
+function HomeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9v11h14V9" />
+    </svg>
+  )
+}
+
+// Site header: name on the left, Home and the islands on the right in a fixed order,
+// with the current one highlighted, and the CV download in its own pill after them
 export function NavigationBar({
-  onBackClick,
-  onCameraClick,
-  cameras,
+  visible,
+  disabled,
+  items,
   currentCameraIndex,
-  style = {},
-  className = ''
+  onNavigate,
 }: NavigationBarProps) {
-  const availableCameras = cameras.filter(({ index }) => index !== currentCameraIndex)
+  function navigate(index: number) {
+    if (index !== currentCameraIndex) onNavigate(index)
+  }
 
   return (
-    <div className={className} style={{
-      position: 'fixed',
-      bottom: '40px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex: 1000,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      padding: '12px 16px',
-      background: 'rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      borderRadius: '12px',
-      ...style
-    }}>
-      {/* Back button */}
-      <button
-        onClick={onBackClick}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '14px 24px',
-          background: 'transparent',
-          border: 'none',
-          borderRadius: '8px',
-          color: 'rgba(255, 255, 255, 0.85)',
-          fontSize: '22px',
-          fontWeight: 500,
-          cursor: 'pointer',
-          transition: 'background 0.15s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'transparent'
-        }}
-      >
-        <span style={{ fontSize: '24px', lineHeight: 1 }}>←</span>
-        Back
-      </button>
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence>
+        {visible && (
+          <motion.header
+            className="site-nav"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            <div className="site-nav__brand">Paweł Matuszak</div>
 
-      {/* Separator */}
-      <div style={{
-        width: '1px',
-        height: '28px',
-        background: 'rgba(255, 255, 255, 0.2)',
-      }} />
-
-      {/* Navigation options */}
-      {availableCameras.map(({ name, index }) => (
-        <button
-          key={index}
-          onClick={() => onCameraClick(index)}
-          style={{
-            padding: '14px 28px',
-            background: 'transparent',
-            border: 'none',
-            borderRadius: '8px',
-            color: '#fff',
-            fontSize: '22px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            transition: 'background 0.15s ease',
-            whiteSpace: 'nowrap',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent'
-          }}
-        >
-          {name}
-        </button>
-      ))}
-    </div>
+            <div className="site-nav__actions">
+              <nav className="site-nav__items" aria-label="Islands">
+                {items.map(({ name, index }) => {
+                  const active = index === currentCameraIndex
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      className={`site-nav__item${active ? ' is-active' : ''}`}
+                      aria-current={active ? 'page' : undefined}
+                      aria-label={name}
+                      disabled={disabled}
+                      onClick={() => navigate(index)}
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="site-nav-active"
+                          className="site-nav__pill"
+                          transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+                        />
+                      )}
+                      <span className="site-nav__label">
+                        {index === CAMERA.MAIN && <HomeIcon />}
+                        <span className={index === CAMERA.MAIN ? 'site-nav__home-text' : undefined}>
+                          {name}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </nav>
+              <CvButton />
+            </div>
+          </motion.header>
+        )}
+      </AnimatePresence>
+    </MotionConfig>
   )
 }

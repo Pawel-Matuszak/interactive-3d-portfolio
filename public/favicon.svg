@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Floating island: rocky underside, grass top, tree -->
+  <path d="M2 34 L62 34 L48 52 L33 63 L22 54 L10 46 Z" fill="#8a5a2b"/>
+  <path d="M2 34 L62 34 L54 44 L33 49 L10 44 Z" fill="#a8703a"/>
+  <path d="M1 32 Q32 24 63 32 L62 38 Q32 32 2 38 Z" fill="#4caf3c"/>
+  <rect x="33" y="14" width="6" height="18" fill="#9b5e2a"/>
+  <circle cx="36" cy="13" r="12" fill="#2e9b45"/>
+  <circle cx="31" cy="9" r="6" fill="#5cc35a"/>
+</svg>

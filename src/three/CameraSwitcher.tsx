@@ -1,40 +1,30 @@
-import { useScene } from './SceneContext'
+import { useScene } from './useScene'
 import { NavigationBar } from '../components/NavigationBar'
+import { CAMERA } from './interactions/constants'
 
-const cameraNames = {
-  'Project Workshop': 0,
-  'Experience tree': 3,
-  'Contact Me': 2,
-}
+const NAV_ITEMS = [
+  { name: 'Home', index: CAMERA.MAIN },
+  { name: 'Workshop', index: CAMERA.WORKSHOP },
+  { name: 'Experience', index: CAMERA.TREE },
+  { name: 'Contact', index: CAMERA.CONTACT },
+]
 
 export function CameraSwitcher() {
   const {
     currentCameraIndex,
     setCurrentCameraIndex,
-    loadedCameras
+    loadedCameras,
+    isCameraFlying,
+    introDone,
   } = useScene()
 
-  if (loadedCameras.length === 0) {
-    return null
-  }
-
-  const cameraOptions = Object.entries(cameraNames).map(([name, index]) => ({
-    name,
-    index: Number(index)
-  }))
-
-  const isInCameraSelectionMode = currentCameraIndex === 1
-
   return (
-    <>
-      {!isInCameraSelectionMode && (
-        <NavigationBar
-          onBackClick={() => setCurrentCameraIndex(1)}
-          onCameraClick={setCurrentCameraIndex}
-          cameras={cameraOptions}
-          currentCameraIndex={currentCameraIndex}
-        />
-      )}
-    </>
+    <NavigationBar
+      visible={loadedCameras.length > 0 && introDone}
+      disabled={isCameraFlying}
+      items={NAV_ITEMS}
+      currentCameraIndex={currentCameraIndex}
+      onNavigate={setCurrentCameraIndex}
+    />
   )
 }
