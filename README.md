@@ -1,82 +1,58 @@
-## Assets
+# Interactive 3D Portfolio
 
-Place GLB, PNG, and DRACO decoder files under `public/static/`:
+My personal portfolio as a set of small 3D islands you can fly between. Projects, experience and contact details sit on the islands themselves.
 
-- GLBs: `islands.glb`, `buildings.glb`, `green.glb`, `small.glb`, `water.glb`, `contactContents.glb`, `blueprintContents.glb`, `treeContents.glb`, `cameras.glb`
-- Textures: `islands.png`, `buildings.png`, `green.png`, `small.png`, `water.png`
-- DRACO: copy the `draco/` folder (including `draco_decoder.wasm`, `draco_decoder.js`, etc.) into `public/static/draco/`
+**Live site: [pawel-matuszak.github.io/interactive-3d-portfolio](https://pawel-matuszak.github.io/interactive-3d-portfolio/)**
 
-The app references these via absolute paths like `/static/green.glb`.
-# React + TypeScript + Vite
+[![Interactive 3D Portfolio preview](public/og-image.png)](https://pawel-matuszak.github.io/interactive-3d-portfolio/)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
 
-Currently, two official plugins are available:
+- Islands built in Blender and exported as Draco-compressed GLB with baked textures
+- Smooth camera flights between islands, driven by the navigation bar or by clicking in the scene
+- Clickable objects in the scene: project blueprints open detail cards with links to the live demo and source code
+- Animated ocean, wind-blown foliage and a gradient sky
+- Loading screen, intro hint, and a CV download button
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech stack
 
-## React Compiler
+| Area | Tools |
+| --- | --- |
+| UI | React 19, TypeScript, Framer Motion |
+| 3D | Three.js, React Three Fiber, Drei |
+| Assets | Blender, GLB + Draco compression, baked textures |
+| Tooling | Vite, ESLint, r3f-perf, lil-gui |
+| Deployment | GitHub Actions → GitHub Pages |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Running locally
 
-## Expanding the ESLint configuration
+Requires Node.js 22 (the version CI uses).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev       # start the dev server
+npm run build     # type-check and build to dist/
+npm run preview   # serve the production build
+npm run lint      # run ESLint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+  components/   UI overlays: navigation bar, project cards, loading screen, CV button
+  content/      Text content: projects and experience
+  three/        Scene, cameras, camera flights, interactions, water and wind animation
+public/static/  GLB models, baked textures and the Draco decoder
+```
+
+To change the portfolio content, edit `src/content/projects.ts` and `src/content/experience.ts`. Keys there match the mesh names in the GLB files.
+
+## Deployment
+
+Every push to `main` is built and deployed to GitHub Pages by `.github/workflows/deploy.yml`. Vite's `base` is set to `/interactive-3d-portfolio/` in `vite.config.ts` to match the Pages path.
+
+## Contact
+
+- GitHub: [Pawel-Matuszak](https://github.com/Pawel-Matuszak)
+- LinkedIn: [Paweł Matuszak](https://www.linkedin.com/in/pawe%C5%82-matuszak-404a5523b/)
