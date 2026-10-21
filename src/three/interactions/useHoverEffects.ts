@@ -31,9 +31,10 @@ export function useHoverEffects(
   treeContents: { show: (index: number) => void, hide: () => void },
   outlines: { show: (island: IslandOutline) => void, hideAll: () => void },
 ) {
-  const { gl } = useThree()
+  const { gl, camera } = useThree()
   const {
-    loadedCameras,
+    isCameraFlying,
+    introDone,
     currentCameraIndex,
     currentVisibleTreeContent,
     setHoveredWorkshopContent,
@@ -123,8 +124,8 @@ export function useHoverEffects(
   }
 
   useFrame(() => {
-    const camera = loadedCameras[currentCameraIndex]
-    if (!camera) return
+    // Nothing is hoverable mid-flight; hover resumes once the camera lands
+    if (isCameraFlying || !introDone) return
 
     const now = performance.now()
     if (now - lastRaycast.current < RAYCAST_INTERVAL_MS) return

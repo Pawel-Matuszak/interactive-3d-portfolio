@@ -10,9 +10,11 @@ import { CameraSwitcher } from './CameraSwitcher'
 import { WaterAnimation } from './WaterAnimation'
 import { WindAnimation } from './WindAnimation'
 import { GradientSky } from './GradientSky'
+import { Ocean } from './Ocean'
 import { TreeContentOverlays } from '../components/TreeContentOverlays'
 import { WorkshopTooltip } from '../components/WorkshopTooltip'
 import { LoadingScreen } from '../components/LoadingScreen'
+import { IntroHint } from '../components/IntroHint'
 // import { CvButton } from '../components/CvButton'
 
 const MOBILE_BREAKPOINT = 900
@@ -59,7 +61,7 @@ export function CanvasScene() {
           {import.meta.env.DEV && (
             <>
               <Perf
-                position="top-left"
+                position="bottom-right"
                 minimal={false}
                 showGraph={true}
                 logsPerSecond={2}
@@ -70,9 +72,11 @@ export function CanvasScene() {
           {/* <OrbitControls enableDamping makeDefault /> */}
           {/* <Environment preset="park" background /> */}
           <GradientSky />
+          <Ocean />
         </Canvas>
         <LoadingScreen />
         <CameraSwitcher />
+        <IntroHint />
         {/* <CvButton /> */}
       </SceneProvider>
       {mobileBlocked && !dismissed && (

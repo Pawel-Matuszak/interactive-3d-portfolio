@@ -18,10 +18,12 @@ export function GradientSky() {
   const { horizonToMidPoint, midToZenithPoint, smoothness } = SKY_CONFIG
 
   return (
-    <mesh>
+    // Background: drawn before everything else (including the ocean) without writing depth
+    <mesh renderOrder={-2}>
       <sphereGeometry args={[500, 32, 32]} />
       <shaderMaterial
         side={BackSide}
+        depthWrite={false}
         uniforms={{
           uColorHorizon: { value: new THREE.Color(SKY_CONFIG.horizonColor) },
           uColorMid: { value: new THREE.Color(SKY_CONFIG.midColor) },

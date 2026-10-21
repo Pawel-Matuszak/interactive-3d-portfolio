@@ -10,6 +10,8 @@ export function SceneProvider({ children }: { children: React.ReactNode }) {
   //2 - about
   //3 - three
   const [currentCameraIndex, setCurrentCameraIndex] = useState(1)
+  const [isCameraFlying, setIsCameraFlying] = useState(false)
+  const [introDone, setIntroDone] = useState(false)
   const contactAnimationMeshes = useRef<THREE.Mesh[]>([])
   const [treeContentsVisible, setTreeContentsVisible] = useState(false)
   const [currentVisibleTreeContent, setCurrentVisibleTreeContent] = useState<number | null>(null)
@@ -57,7 +59,11 @@ export function SceneProvider({ children }: { children: React.ReactNode }) {
     loadedCameras,
     setLoadedCameras,
     currentCameraIndex,
-    setCurrentCameraIndex
+    setCurrentCameraIndex,
+    isCameraFlying,
+    setIsCameraFlying,
+    introDone,
+    setIntroDone
   }), [
     loadedScenes,
     contactAnimationMeshes,
@@ -66,6 +72,8 @@ export function SceneProvider({ children }: { children: React.ReactNode }) {
     hoveredWorkshopContent,
     loadedCameras,
     currentCameraIndex,
+    isCameraFlying,
+    introDone,
     contactContentMeshes,
     buildingsMeshes,
     islandWorkshopMeshes,

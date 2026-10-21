@@ -70,7 +70,23 @@ button:focus-visible {
 /* Loading overlay styles */
 .loading-overlay { position: fixed; inset: 0; display: grid; place-items: center; z-index: 9999; background: linear-gradient(180deg, #244060 0%, #2b648f 60%, #244060 100%); }
 .loading-title { font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase; color: #e6f2ff; opacity: 0.95; margin-bottom: 8px; text-align: center; }
+.intro-hint { position: fixed; bottom: 40px; left: 50%; z-index: 1000; padding: 14px 28px; border-radius: 12px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #fff; font-size: 22px; font-weight: 500; white-space: nowrap; pointer-events: none; }
 .loading-subtitle { font-size: 14px; color: #cfe6ff; text-align: center; opacity: 0.9; }
+
+/* Site header. The bar itself lets clicks through to the scene, only its pills catch them */
+.site-nav { position: fixed; top: 20px; left: 24px; right: 24px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+.site-nav__brand, .site-nav__items { pointer-events: auto; border-radius: 10px; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.site-nav__items { display: flex; gap: 2px; padding: 4px; }
+.site-nav button { border: none; background: transparent; color: rgba(255, 255, 255, 0.75); font-size: 16px; font-weight: 500; line-height: 1.2; white-space: nowrap; transition: color 0.15s ease, background 0.15s ease; }
+.site-nav button:hover:not(:disabled), .site-nav button[aria-current='page'] { color: #fff; }
+.site-nav button:disabled { cursor: default; }
+.site-nav button:focus { outline: none; }
+.site-nav button:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.8); outline-offset: 2px; }
+.site-nav__brand { padding: 12px 18px; color: #fff; font-size: 16px; font-weight: 600; line-height: 1.2; letter-spacing: 0.01em; white-space: nowrap; pointer-events: none; }
+.site-nav__item { position: relative; padding: 8px 16px; border-radius: 7px; }
+.site-nav__item:hover:not(:disabled):not(.is-active) { background: rgba(255, 255, 255, 0.08); }
+.site-nav__pill { position: absolute; inset: 0; border-radius: 7px; background: rgba(255, 255, 255, 0.16); }
+.site-nav__label { position: relative; display: flex; align-items: center; gap: 6px; }
 
 /* Ocean + boat */
 .ocean { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px }

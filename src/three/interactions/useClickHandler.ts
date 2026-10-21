@@ -14,7 +14,7 @@ function openLink(links: Record<string, string>, name: string) {
 
 export function useClickHandler(pointer: THREE.Vector2, hideTreeContents: () => void) {
   const { gl, camera } = useThree()
-  const { currentCameraIndex, setCurrentCameraIndex } = useScene()
+  const { currentCameraIndex, setCurrentCameraIndex, isCameraFlying, introDone } = useScene()
   const getMeshes = useInteractiveMeshes()
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
 
@@ -22,6 +22,7 @@ export function useClickHandler(pointer: THREE.Vector2, hideTreeContents: () => 
     const element = gl.domElement
 
     function onClick() {
+      if (isCameraFlying || !introDone) return
       raycaster.setFromCamera(pointer, camera)
       const name = raycaster.intersectObjects(getMeshes())[0]?.object.name
 
@@ -64,6 +65,8 @@ export function useClickHandler(pointer: THREE.Vector2, hideTreeContents: () => 
     getMeshes,
     currentCameraIndex,
     setCurrentCameraIndex,
+    isCameraFlying,
+    introDone,
     hideTreeContents,
   ])
 }

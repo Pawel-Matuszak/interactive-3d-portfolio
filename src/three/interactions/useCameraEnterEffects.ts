@@ -10,7 +10,7 @@ const CONTACT_TEXT_FRAME_MS = 100
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export function useCameraEnterEffects(hideTreeContents: () => void, hideAllOutlines: () => void) {
-  const { currentCameraIndex, loadedScenes, contactAnimationMeshes } = useScene()
+  const { currentCameraIndex, isCameraFlying, loadedScenes, contactAnimationMeshes } = useScene()
   const leavesFlashed = useRef(false)
   const contactTextPlayed = useRef(false)
 
@@ -20,9 +20,9 @@ export function useCameraEnterEffects(hideTreeContents: () => void, hideAllOutli
     hideAllOutlines()
   }, [currentCameraIndex, hideTreeContents, hideAllOutlines])
 
-  // First visit to the tree: flash the leaves to hint that they're interactive
+  // First visit to the tree: flash the leaves to hint that they're interactive, once the camera has landed
   useEffect(() => {
-    if (currentCameraIndex !== CAMERA.TREE || leavesFlashed.current) return
+    if (isCameraFlying || currentCameraIndex !== CAMERA.TREE || leavesFlashed.current) return
     const nature = loadedScenes.find((s) => s.name === 'bushRocks-scene')
     if (!nature) return
     leavesFlashed.current = true
@@ -35,11 +35,11 @@ export function useCameraEnterEffects(hideTreeContents: () => void, hideAllOutli
         console.warn('Leaf not found:', name)
       }
     })
-  }, [currentCameraIndex, loadedScenes])
+  }, [currentCameraIndex, isCameraFlying, loadedScenes])
 
-  // First visit to contact: play the "contact me" text frame by frame
+  // First visit to contact: play the "contact me" text frame by frame, once the camera has landed
   useEffect(() => {
-    if (currentCameraIndex !== CAMERA.CONTACT || contactTextPlayed.current) return
+    if (isCameraFlying || currentCameraIndex !== CAMERA.CONTACT || contactTextPlayed.current) return
     contactTextPlayed.current = true
 
     const frames = contactAnimationMeshes.current
@@ -50,5 +50,5 @@ export function useCameraEnterEffects(hideTreeContents: () => void, hideAllOutli
         if (i < frames.length - 1) await wait(CONTACT_TEXT_FRAME_MS)
       }
     })()
-  }, [currentCameraIndex, contactAnimationMeshes])
+  }, [currentCameraIndex, isCameraFlying, contactAnimationMeshes])
 }

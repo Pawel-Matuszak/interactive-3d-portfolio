@@ -34,6 +34,10 @@ export interface SceneContextValue {
   setLoadedCameras: React.Dispatch<React.SetStateAction<THREE.PerspectiveCamera[]>>
   currentCameraIndex: number
   setCurrentCameraIndex: (i: number) => void
+  isCameraFlying: boolean
+  setIsCameraFlying: (v: boolean) => void
+  introDone: boolean
+  setIntroDone: (v: boolean) => void
 }
 
 export const SceneContext = createContext<SceneContextValue | null>(null)
