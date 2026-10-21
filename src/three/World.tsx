@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { useScene } from './SceneContext'
+import { useScene } from './useScene'
 
 export function World() {
   const { loadedScenes } = useScene()

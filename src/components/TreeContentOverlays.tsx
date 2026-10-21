@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useScene } from '../three/SceneContext'
+import { useScene } from '../three/useScene'
 
 interface TreeOverlayContent {
   title: string
@@ -208,11 +208,14 @@ export function TreeContentOverlays({
                   {content.title}
                 </div>
                 <ul style={{ textAlign: 'left', marginBottom: 0 }}>
-                  {content.description.split('. ').map(item => {
-                    return (
-                      <li style={{ fontSize: 18, opacity: 0.9, listStyleType: 'disc', marginBottom: 4 }} >{item}</li>
-                    )
-                  })}
+                  {content.description.split('. ').map(item => (
+                    <li
+                      key={item}
+                      style={{ fontSize: 18, opacity: 0.9, listStyleType: 'disc', marginBottom: 4 }}
+                    >
+                      {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

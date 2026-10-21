@@ -78,7 +78,8 @@ export function CanvasScene() {
           <div className="mobile-blocker__card">
             <div className="mobile-blocker__title">Best experienced on desktop</div>
             <div className="mobile-blocker__body">
-              This interactive 3D portfolio needs a keyboard, mouse, and a larger screen to run smoothly.
+              This interactive 3D portfolio needs a keyboard, mouse, and a larger screen
+              to run smoothly.
               Please visit again on a laptop or desktop for the full experience.
             </div>
             <button

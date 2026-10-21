@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import { useScene } from './SceneContext'
+import { useScene } from './useScene'
 
 export function WaterAnimation() {
   const { waterMeshes, boatMesh } = useScene()

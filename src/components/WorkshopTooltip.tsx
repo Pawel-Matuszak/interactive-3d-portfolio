@@ -2,7 +2,7 @@ import { Fragment, useMemo, useState, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useScene } from '../three/SceneContext'
+import { useScene } from '../three/useScene'
 
 interface WorkshopContent {
     title: string

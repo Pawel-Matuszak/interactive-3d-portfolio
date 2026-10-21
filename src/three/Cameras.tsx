@@ -4,12 +4,13 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { useThree } from '@react-three/fiber'
 import { CAMERAS_GLTF_URL, DRACO_DECODER_PATH } from './sceneConfigs'
-import { useScene } from './SceneContext'
+import { useScene } from './useScene'
 import { useFrame } from '@react-three/fiber'
 
 export function Cameras() {
   const { camera: baseCamera, set } = useThree()
   const { setLoadedCameras, loadedCameras, currentCameraIndex, setCurrentCameraIndex } = useScene()
+  const baseAspect = (baseCamera as THREE.PerspectiveCamera).aspect
   const baseQuaternionsRef = useRef<Map<THREE.PerspectiveCamera, THREE.Quaternion>>(new Map())
   const basePositionsRef = useRef<Map<THREE.PerspectiveCamera, THREE.Vector3>>(new Map())
 
@@ -22,13 +23,12 @@ export function Cameras() {
     loader.load(CAMERAS_GLTF_URL, (gltf) => {
       const cams: THREE.PerspectiveCamera[] = []
       gltf.scene.traverse((child: THREE.Object3D) => {
-        const anyChild = child as any
-        if (anyChild.isCamera) {
+        if ((child as THREE.Camera).isCamera) {
           let newCam: THREE.PerspectiveCamera | null = null
-          if (anyChild.isPerspectiveCamera) {
-            const aspect = (baseCamera as THREE.PerspectiveCamera).aspect
+          const source = child as THREE.PerspectiveCamera
+          if (source.isPerspectiveCamera) {
             const customFar = 550;
-            newCam = new THREE.PerspectiveCamera(anyChild.fov, aspect, anyChild.near, customFar)
+            newCam = new THREE.PerspectiveCamera(source.fov, baseAspect, source.near, customFar)
           }
           if (newCam) {
             child.updateMatrixWorld(true)
@@ -45,7 +45,7 @@ export function Cameras() {
       })
       setLoadedCameras(cams)
     })
-  }, [(baseCamera as THREE.PerspectiveCamera).aspect, setLoadedCameras])
+  }, [baseAspect, setLoadedCameras])
 
   // Sync active camera switch
   useEffect(() => {
@@ -78,7 +78,7 @@ export function Cameras() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [loadedCameras, setCurrentCameraIndex])
+  }, [loadedCameras, currentCameraIndex, setCurrentCameraIndex])
 
   //camera parallax tilt effect
   const mouseX = useRef(0)

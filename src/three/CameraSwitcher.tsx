@@ -1,4 +1,4 @@
-import { useScene } from './SceneContext'
+import { useScene } from './useScene'
 import { NavigationBar } from '../components/NavigationBar'
 
 const cameraNames = {
